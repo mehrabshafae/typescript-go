@@ -126,6 +126,12 @@ func osFSRealpath(path string) string {
 }
 
 func (vfs *osFS) writeFile(path string, content string, writeByteOrderMark bool) error {
+	if runtime.GOOS == "darwin" {
+		// macOS appears to struggle with contention on file creation; gate this on the semaphore too.
+		osReadSema <- struct{}{}
+		defer func() { <-osReadSema }()
+	}
+
 	file, err := os.Create(path)
 	if err != nil {
 		return err
