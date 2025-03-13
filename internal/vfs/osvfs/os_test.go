@@ -59,3 +59,15 @@ func TestOS(t *testing.T) {
 		}
 	})
 }
+
+func BenchmarkWriteFile(b *testing.B) {
+	fs := osvfs.FS()
+
+	tmp := b.TempDir()
+	file := tspath.NormalizePath(filepath.Join(tmp, "test.txt"))
+	contents := strings.Repeat("Hello World\n", 1000)
+
+	for b.Loop() {
+		_ = fs.WriteFile(file, contents, false)
+	}
+}
